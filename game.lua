@@ -15,17 +15,64 @@ physics.setGravity( 0, 0 )
 -- Configure image sheet
 local sheetOptions =
 {
-    frames =
-    {
-        {   -- 1) garuna
-            x = 0,
-            y = 130,
-            width = 135,
-            height = 100
-        },
-    },
+    width = 144,
+    height = 128,
+    numFrames = 12
 }
-local objectSheet = graphics.newImageSheet( "garuna.png", sheetOptions )
+local sheet_flyingGaruna = graphics.newImageSheet( "garuna.png", sheetOptions )
+
+-- sequences table
+local sequences_flyingGaruna = {
+    -- first sequence
+    {
+        name = "normalFlight",
+        start = 4,
+        count = 3,
+        time = 600,
+        loopCount = 0,
+        loopDirection = "forward"
+    },
+    -- second sequence
+    {
+        name = "fastFlight",
+        start = 4,
+        count = 3,
+        time = 300,
+        loopCount = 0,
+        loopDirection = "forward"
+    }
+}
+
+-- Configure image sheet
+local sheetOptions_fireball =
+{
+    width = 187,
+    height = 108,
+    numFrames = 4
+}
+local sheet_fireball = graphics.newImageSheet( "fireball_sheet.png", sheetOptions_fireball )
+
+-- sequences table
+local sequences_fireball = {
+    -- first sequence
+    {
+        name = "normalFireball",
+        start = 1,
+        count = 4,
+        time = 500,
+        loopCount = 0,
+        loopDirection = "forward"
+    },
+    -- second sequence
+    {
+        name = "fastFireball",
+        start = 1,
+        count = 4,
+        time = 100,
+        loopCount = 0,
+        loopDirection = "forward"
+    }
+}
 
 -- Initialize variables
 local lives = 3
@@ -81,8 +128,10 @@ end
 
 local function fireball()
 
-	local newLaser = display.newImageRect( mainGroup, "fireball.png", 50, 50 )
-	physics.addBody( newLaser, "dynamic", { isSensor=true } )
+	local newLaser = display.newSprite( mainGroup, sheet_fireball, sequences_fireball )
+    newLaser:setSequence("fastFireball")
+    newLaser:play()
+    physics.addBody( newLaser, "dynamic", { isSensor=true } )
 	newLaser.isBullet = true
 	newLaser.myName = "laser"
 
@@ -215,7 +264,9 @@ function scene:create( event )
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 
-	ship = display.newImageRect( mainGroup, objectSheet, 1, 135, 90 )
+	ship = display.newSprite( mainGroup, sheet_flyingGaruna, sequences_flyingGaruna )
+    ship:setSequence("fastFlight")
+    ship:play()
     ship.x = 100
     ship.y = display.contentCenterY
     physics.addBody( ship, { radius=30, isSensor=true } )
