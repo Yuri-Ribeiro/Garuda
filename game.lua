@@ -81,7 +81,7 @@ local died = false
 
 local asteroidsTable = {}
 
-local ship
+local dragon
 local livesText
 local scoreText
 
@@ -135,8 +135,8 @@ local function fireball()
 	newLaser.isBullet = true
 	newLaser.myName = "laser"
 
-	newLaser.x = ship.x + 50
-	newLaser.y = ship.y + 20
+	newLaser.x = dragon.x + 50
+	newLaser.y = dragon.y + 20
 	newLaser:toBack()
 
 	transition.to( newLaser, { x = display.contentWidth + 40, time=1000,
@@ -145,39 +145,44 @@ local function fireball()
 end
 
 
-local function dragShip( event )
+local function dragDragon( event )
  
-    local ship = event.target
+    local dragon = event.target
     local phase = event.phase
  
     if ( "began" == phase ) then
-        -- Set touch focus on the ship
-        display.currentStage:setFocus( ship )
+        -- Set touch focus on the dragon
+        display.currentStage:setFocus( dragon )
         -- Store initial offset position
-        ship.touchOffsetY = event.y - ship.y
+        dragon.touchOffsetY = event.y - dragon.y
+        dragon.touchOffsetX = event.x - dragon.x
  
     elseif ( "moved" == phase ) then
-        -- Move the ship to the new touch position
-        ship.y = event.y - ship.touchOffsetY
- 
+        local newPositionY = event.y - dragon.touchOffsetY
+
+        -- Move the dragon to the new touch position
+        if ( newPositionY > 160 and newPositionY < 630 ) then
+            dragon.y = newPositionY
+        end
+
     elseif ( "ended" == phase or "cancelled" == phase ) then
-        -- Release touch focus on the ship
+        -- Release touch focus on the dragon
         display.currentStage:setFocus( nil )
     end
  
     return true  -- Prevents touch propagation to underlying objects
 end
  
-local function restoreShip()
+local function restoredragon()
  
-    ship.isBodyActive = false
-    ship.x = 100
-    ship.y = display.contentCenterY
+    dragon.isBodyActive = false
+    dragon.x = 100
+    dragon.y = display.contentCenterY
  
-    -- Fade in the ship
-    transition.to( ship, { alpha=1, time=4000,
+    -- Fade in the dragon
+    transition.to( dragon, { alpha=1, time=4000,
         onComplete = function()
-            ship.isBodyActive = true
+            dragon.isBodyActive = true
             died = false
         end
     } )
@@ -214,8 +219,8 @@ local function onCollision( event )
             score = score + 100
             scoreText.text = "Score: " .. score
  
-        elseif ( ( obj1.myName == "ship" and obj2.myName == "asteroid" ) or
-                 ( obj1.myName == "asteroid" and obj2.myName == "ship" ) )
+        elseif ( ( obj1.myName == "dragon" and obj2.myName == "asteroid" ) or
+                 ( obj1.myName == "asteroid" and obj2.myName == "dragon" ) )
         then
             if ( died == false ) then
                 died = true
@@ -225,11 +230,11 @@ local function onCollision( event )
                 livesText.text = "Lives: " .. lives
  
                 if ( lives == 0 ) then
-					display.remove( ship )
+					display.remove( dragon )
 					timer.performWithDelay( 2000, endGame )
                 else
-                    ship.alpha = 0
-                    timer.performWithDelay( 1000, restoreShip )
+                    dragon.alpha = 0
+                    timer.performWithDelay( 1000, restoredragon )
                 end
             end
         end
@@ -253,7 +258,7 @@ function scene:create( event )
 	backGroup = display.newGroup()  -- Display group for the background image
 	sceneGroup:insert( backGroup )  -- Insert into the scene's view group
 	
-	mainGroup = display.newGroup()  -- Display group for the ship, asteroids, lasers, etc.
+	mainGroup = display.newGroup()  -- Display group for the dragon, asteroids, lasers, etc.
 	sceneGroup:insert( mainGroup )  -- Insert into the scene's view group
 	
 	uiGroup = display.newGroup()    -- Display group for UI objects like the score
@@ -264,20 +269,20 @@ function scene:create( event )
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 
-	ship = display.newSprite( mainGroup, sheet_flyingGaruna, sequences_flyingGaruna )
-    ship:setSequence("fastFlight")
-    ship:play()
-    ship.x = 100
-    ship.y = display.contentCenterY
-    physics.addBody( ship, { radius=30, isSensor=true } )
-    ship.myName = "ship"
+	dragon = display.newSprite( mainGroup, sheet_flyingGaruna, sequences_flyingGaruna )
+    dragon:setSequence("fastFlight")
+    dragon:play()
+    dragon.x = 100
+    dragon.y = display.contentCenterY
+    physics.addBody( dragon, { radius=30, isSensor=true } )
+    dragon.myName = "dragon"
  
     -- Display lives and score
     livesText = display.newText( uiGroup, "Lives: " .. lives, 200, 80, native.systemFont, 36 )
     scoreText = display.newText( uiGroup, "Score: " .. score, 400, 80, native.systemFont, 36 )
 
-	ship:addEventListener( "tap", fireball )
-    ship:addEventListener( "touch", dragShip )
+	dragon:addEventListener( "tap", fireball )
+    dragon:addEventListener( "touch", dragDragon )
 end
 
 
