@@ -264,10 +264,17 @@ function scene:create( event )
 	uiGroup = display.newGroup()    -- Display group for UI objects like the score
 	sceneGroup:insert( uiGroup )    -- Insert into the scene's view group
 
-	-- Load the background
-	local background = display.newImageRect( backGroup, "background2.png", 1200, 600 )
-	background.x = display.contentCenterX
-	background.y = display.contentCenterY
+    -- Load the background
+    
+    display.setDefault("textureWrapX","mirroredRepeat")
+
+    local background = display.newRect( backGroup, display.contentCenterX , display.contentCenterY, 1200 , 600 )
+    background.fill={ type = "image", filename = "background2.png" }
+    local function animateBackground()
+        transition.to( background.fill, { time = 5000, x=1 , delta = true, onComplete = animateBackground })
+    end
+
+    animateBackground()
 
 	dragon = display.newSprite( mainGroup, sheet_flyingGaruna, sequences_flyingGaruna )
     dragon:setSequence("fastFlight")
