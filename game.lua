@@ -159,11 +159,18 @@ local function dragDragon( event )
  
     elseif ( "moved" == phase ) then
         local newPositionY = event.y - dragon.touchOffsetY
+        local newPositionX = event.x - dragon.touchOffsetX
 
         -- Move the dragon to the new touch position
         if ( newPositionY > 160 and newPositionY < 630 ) then
             dragon.y = newPositionY
         end
+
+        if ( newPositionX > 85 and newPositionX < 160 ) then
+            dragon.x = newPositionX
+        end
+
+        print(newPositionX)
 
     elseif ( "ended" == phase or "cancelled" == phase ) then
         -- Release touch focus on the dragon
