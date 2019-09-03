@@ -22,7 +22,12 @@
 ##	Controles
   Touch
 ##	Diagrama de navegação
-  Ver arquivo 
+  ### Menu
+  ![Alt Text](https://cdn1.imggmi.com/uploads/2019/9/3/c890e8e2b0c7d0186597e5e26b22ce7f-full.png)
+  ### High scores
+  ![Alt Text](https://cdn1.imggmi.com/uploads/2019/9/3/51d131e52bfde0aa37d93f0254874ed9-full.png)
+  ### Game
+  ![Alt Text](https://cdn1.imggmi.com/uploads/2019/9/3/b7cbefa9b2e06620f26b44c753fe7fae-full.png)
 ##	Regras do jogo com sistema de pontuação
   Matar um inimigo irá render pontos
   A quantidade de pontos por morte dependerá de qual será o inimigo
