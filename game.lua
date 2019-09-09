@@ -303,7 +303,7 @@ function scene:create( event )
     -- inimigos
     local enemies = display.newGroup()
 
-    function movermeteorite()
+    function moveEnemy()
         for a = 0, enemies.numChildren, 1 do
             if enemies[a] ~= nil and enemies[a].y ~= nil then
                 enemies[a].x = enemies[a].x - 10
@@ -311,7 +311,7 @@ function scene:create( event )
         end
     end
 
-    function adicionarmeteorite()
+    function addEnemy()
         enemy = display.newImage( mainGroup, "fireball.png" )
         enemy.y = math.floor(math.random() * (display.contentHeight - enemy.height) + 100)
         enemy.x = display.contentWidth
@@ -324,8 +324,8 @@ function scene:create( event )
         -- enemy:addEventListener('collision', meteoriteColisao)    
     end
     mainGroup:insert(enemies)
-    movermeteoriteLoop = timer.performWithDelay(1, movermeteorite, -1)
-    criarmeteoriteLoop = timer.performWithDelay(900, adicionarmeteorite, -1)
+    moveEnemyLoop = timer.performWithDelay(1, moveEnemy, -1)
+    createEnemyLoop = timer.performWithDelay(900, addEnemy, -1)
 end
 
 
@@ -353,7 +353,9 @@ function scene:hide( event )
 	local phase = event.phase
 
 	if ( phase == "will" ) then
-		-- Code here runs when the scene is on screen (but is about to go off screen)
+        -- Code here runs when the scene is on screen (but is about to go off screen)
+        timer.cancel(moveEnemyLoop)
+        timer.cancel(createEnemyLoop) 
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
