@@ -15,6 +15,7 @@ local scoresTable = {}
  
 local filePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
 
+local button
 
 local function loadScores()
  
@@ -48,7 +49,16 @@ end
 
 
 local function gotoMenu()
-    composer.gotoScene( "menu", { time=800, effect="crossFade" } )
+	composer.gotoScene( "menu", { time=800, effect="crossFade" } )
+	button.isVisible = false
+end
+
+-- Function to handle button events
+local function handleButtonEvent( event )
+
+	if ( "ended" == event.phase ) then
+		print( "Button was pressed and released" )
+	end
 end
 
 
@@ -58,6 +68,21 @@ end
 
 -- create()
 function scene:create( event )
+	local widget = require( "widget" )
+	
+	-- Create the widget
+	button = widget.newButton(
+		{
+			x=100,
+			y=150,
+			id = "button1",
+			label = "Menu",
+			labelColor = { default={ 1, 1, 1 }, over={ 0, 0, 0, 0.5 } },
+			fontSize=36,
+			onEvent = gotoMenu
+		}
+	)
+	
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
@@ -143,6 +168,7 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
+		print("saiu")
 		composer.removeScene( "highscores" )
 	end
 end
