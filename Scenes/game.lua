@@ -19,7 +19,7 @@ local sheetOptions =
     height = 128,
     numFrames = 12
 }
-local sheet_flyingGaruna = graphics.newImageSheet( "garuna.png", sheetOptions )
+local sheet_flyingGaruna = graphics.newImageSheet( "images/garuda.png", sheetOptions )
 
 -- sequences table
 local sequences_flyingGaruna = {
@@ -50,7 +50,7 @@ local sheetOptions_fireball =
     height = 108,
     numFrames = 4
 }
-local sheet_fireball = graphics.newImageSheet( "fireball_sheet.png", sheetOptions_fireball )
+local sheet_fireball = graphics.newImageSheet( "images/fireball_sheet.png", sheetOptions_fireball )
 
 -- sequences table
 local sequences_fireball = {
@@ -99,7 +99,7 @@ end
 local function createEnemy()
 
 	-- local newEnemy = display.newImageRect( mainGroup, objectSheet, 1, 102, 85 )
-    local newEnemy = display.newImage( mainGroup, "fireball.png" )
+    local newEnemy = display.newImage( mainGroup, "images/fireball.png" )
 	table.insert( enemiesTable, newEnemy )
 	physics.addBody( newEnemy, "dynamic", { radius=40, bounce=0.8 } )
     newEnemy.myName = "enemy"
@@ -220,7 +220,7 @@ end
 
 local function endGame()
     composer.setVariable( "finalScore", score )
-    composer.gotoScene( "highscores", { time=800, effect="crossFade" } )
+    composer.gotoScene( "Scenes.highscores", { time=800, effect="crossFade" } )
 end
 
  
@@ -299,7 +299,7 @@ function scene:create( event )
     display.setDefault("textureWrapX","mirroredRepeat")
 
     local background = display.newRect( backGroup, display.contentCenterX , display.contentCenterY, 1200 , 600 )
-    background.fill={ type = "image", filename = "background2.png" }
+    background.fill={ type = "image", filename = "images/background2.png" }
     local function animateBackground()
         transition.to( background.fill, { time = 3000, x=1 , delta = true, onComplete = animateBackground })
     end
@@ -315,8 +315,8 @@ function scene:create( event )
     dragon.myName = "dragon"
  
     -- Display lives and score
-    livesText = display.newText( uiGroup, "Vidas: " .. lives, 100, 140, native.systemFont, 36 )
-    scoreText = display.newText( uiGroup, "Pontos: " .. score, 300, 140, native.systemFont, 36 )
+    livesText = display.newText( uiGroup, "Vidas: " .. lives, 100, 160, native.systemFont, 36 )
+    scoreText = display.newText( uiGroup, "Pontos: " .. score, 300, 160, native.systemFont, 36 )
 
 	dragon:addEventListener( "tap", fireball )
     dragon:addEventListener( "touch", dragDragon )

@@ -49,16 +49,7 @@ end
 
 
 local function gotoMenu()
-	composer.gotoScene( "menu", { time=800, effect="crossFade" } )
-	button.isVisible = false
-end
-
--- Function to handle button events
-local function handleButtonEvent( event )
-
-	if ( "ended" == event.phase ) then
-		print( "Button was pressed and released" )
-	end
+	composer.gotoScene( "Scenes.menu", { time=800, effect="crossFade" } )
 end
 
 
@@ -68,24 +59,18 @@ end
 
 -- create()
 function scene:create( event )
-	local widget = require( "widget" )
-	
-	-- Create the widget
-	button = widget.newButton(
-		{
-			x=100,
-			y=150,
-			id = "button1",
-			label = "Menu",
-			labelColor = { default={ 1, 1, 1 }, over={ 0, 0, 0, 0.5 } },
-			fontSize=36,
-			onEvent = gotoMenu
-		}
-	)
-	
-
-	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
+	local sceneGroup = self.view
+
+	local background = display.newImageRect( sceneGroup, "Images/background2.png", 1200, 600 )
+	background.x = display.contentCenterX
+	background.y = display.contentCenterY
+	
+	-- Menu button
+	local menuButton = display.newText( sceneGroup, "Menu", 100, 150, native.systemFont, 36 )
+	menuButton:setFillColor( 0.75, 0.78, 1 )
+
+    menuButton:addEventListener( "tap", gotoMenu )
 
 	-- Load the previous scores
 	loadScores()
@@ -103,9 +88,6 @@ function scene:create( event )
 	-- Save the scores
 	saveScores()
 
-	local background = display.newImageRect( sceneGroup, "background2.png", 1200, 600 )
-    background.x = display.contentCenterX
-    background.y = display.contentCenterY
      
     local highScoresHeader = display.newText( sceneGroup, "High Scores", display.contentCenterX, 190, native.systemFont, 44 )
 
@@ -152,7 +134,6 @@ function scene:show( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
-
 	end
 end
 
@@ -168,7 +149,6 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-		print("saiu")
 		composer.removeScene( "highscores" )
 	end
 end

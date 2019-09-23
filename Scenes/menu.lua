@@ -9,11 +9,11 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 
 local function gotoGame()
-	composer.gotoScene("game", { time=800, effect="crossFade" } )
+	composer.gotoScene("Scenes.game", { time=800, effect="crossFade" } )
 end
 
 local function gotoHighScores()
-	composer.gotoScene("highscores", { time=800, effect="crossFade" } )
+	composer.gotoScene("Scenes.highscores", { time=800, effect="crossFade" } )
 end
 
 
@@ -27,7 +27,7 @@ function scene:create( event )
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 
-	local background = display.newImageRect( sceneGroup, "background.png", 1200, 600 )
+	local background = display.newImageRect( sceneGroup, "images/background.png", 1200, 600 )
     background.x = display.contentCenterX
 	background.y = display.contentCenterY
 	
