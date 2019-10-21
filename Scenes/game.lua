@@ -74,31 +74,25 @@ local sequences_fireball = {
     }
 }
 
---- TESTE
-
--- Configure image sheet
 local sheetOptions_enemy =
 {
-    width = 40,
-    height = 40,
-    numFrames = 3
+    width = 65,
+    height = 65,
+    numFrames = 16
 }
-local sheet_enemy = graphics.newImageSheet( "images/fireball.png", sheetOptions_enemy )
+local sheet_flyingEnemy = graphics.newImageSheet( "images/enemy.png", sheetOptions_enemy )
 
 -- sequences table
-local sequences_enemy = {
-    -- first sequence
+local sequences_flyingEnemy = {
     {
         name = "normalFlight",
-        start = 1,
-        count = 3,
+        start = 13,
+        count = 4,
         time = 600,
         loopCount = 0,
         loopDirection = "forward"
     }
 }
-
--- TESTE
 
 -- Initialize variables
 local lives = 3
@@ -123,18 +117,20 @@ end
 
 
 local function createEnemy()
+    local newEnemy = display.newSprite( mainGroup, sheet_flyingEnemy, sequences_flyingEnemy )
 
-    local newEnemy = display.newSprite( mainGroup, sheet_flyingGaruna, sequences_flyingGaruna )
+    -- local newEnemy = display.newSprite( mainGroup, sheet_enemy, sequences_enemy )
 	table.insert( enemiesTable, newEnemy )
     newEnemy:setSequence("normalFlight")
     newEnemy:play()
+
     -- physics.addBody( newEnemy, { radius=30, isSensor=true } )
 	physics.addBody( newEnemy, "dynamic", { radius=40, bounce=0.8 } )
 
 	-- local newEnemy = display.newImageRect( mainGroup, objectSheet, 1, 102, 85 )
     newEnemy.myName = "enemy"
-    newEnemy.yScale = 0.3
-    newEnemy.xScale = 0.3
+    newEnemy.yScale = 2.5
+    newEnemy.xScale = 2.5
 
 	local whereFrom = math.random( 3 )
 
@@ -155,7 +151,7 @@ local function createEnemy()
 		newEnemy:setLinearVelocity( math.random( -150,-100 ), math.random( -60, -20 ) )
 	end
 
-	newEnemy:applyTorque( math.random( -12,-2 ) )
+	-- newEnemy:applyTorque( math.random( -12,-2 ) )
 end
 
 
