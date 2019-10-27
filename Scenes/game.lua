@@ -12,6 +12,29 @@ local physics = require( "physics" )
 physics.start()
 physics.setGravity( 0, 0 )
 
+-- Initialize variables
+local lives = 3
+local score = 0
+local died = false
+
+local enemiesTable = {}
+
+local dragon
+local livesText
+local scoreText
+
+local backGroup
+local mainGroup
+local uiGroup
+
+local phase1Sound = audio.loadSound( "Audios/Stars_-_phase_1.mp3" )
+local phase1SoundChannel = 1
+
+local fireballSound = audio.loadSound( "Audios/105016__julien-matthey__jm-fx-fireball-01.wav" )
+
+local explosionSound = audio.loadSound( "Audios/Explosion.wav" )
+local fireballSoundChannel
+
 -- Configure image sheet
 local sheetOptions =
 {
@@ -93,21 +116,6 @@ local sequences_flyingEnemy = {
         loopDirection = "forward"
     }
 }
-
--- Initialize variables
-local lives = 3
-local score = 0
-local died = false
-
-local enemiesTable = {}
-
-local dragon
-local livesText
-local scoreText
-
-local backGroup
-local mainGroup
-local uiGroup
 
 
 local function updateText()
@@ -191,7 +199,10 @@ local function fireball()
 
 	transition.to( newLaser, { x = display.contentWidth + 40, time=1000,
 		onComplete = function() display.remove( newLaser ) end
-	} )
+    } )
+    
+    fireballSoundChannel = audio.play( fireballSound )
+    audio.setVolume( 0.4, { channel=fireballSoundChannel } )
 end
 
 
@@ -263,6 +274,9 @@ local function onCollision( event )
             -- Remove both the laser and asteroid
             display.remove( obj1 )
             display.remove( obj2 )
+
+            -- Sound of colision
+            audio.play( explosionSound )
  
             for i = #enemiesTable, 1, -1 do
                 if ( enemiesTable[i] == obj1 or enemiesTable[i] == obj2 ) then
@@ -351,12 +365,13 @@ end
 
 -- show()
 function scene:show( event )
-
+    
 	local sceneGroup = self.view
 	local phase = event.phase
-
+    
 	if ( phase == "will" ) then
-		-- Code here runs when the scene is still off screen (but is about to come on screen)
+        -- Code here runs when the scene is still off screen (but is about to come on screen)
+        audio.play( phase1Sound, { loops=-1, channel=phase1SoundChannel })
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
@@ -381,7 +396,9 @@ function scene:hide( event )
 		-- Code here runs immediately after the scene goes entirely off screen
 		Runtime:removeEventListener( "collision", onCollision )
 		physics.pause()
-		composer.removeScene( "game" )
+        composer.removeScene( "game" )
+        
+        audio.stop(phase1SoundChannel)
 	end
 end
 

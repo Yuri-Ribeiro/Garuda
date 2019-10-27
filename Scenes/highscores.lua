@@ -125,6 +125,8 @@ end
 
 -- show()
 function scene:show( event )
+	
+	print("entrou no high")
 
 	local sceneGroup = self.view
 	local phase = event.phase

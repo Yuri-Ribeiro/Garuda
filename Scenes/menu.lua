@@ -8,14 +8,23 @@ local scene = composer.newScene()
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
+local menuSound = audio.loadSound( "Audios/Biggie_-_Menu.mp3" )
+local menuSoundChannel
+local menuChoiceSound = audio.loadSound( "Audios/Menu_Choice.mp3" )
+local menuChoiceSoundChannel = 2
+
 local function gotoGame()
+	audio.play( menuChoiceSound, { channel=menuChoiceSoundChannel } )
 	composer.gotoScene("Scenes.game", { time=800, effect="crossFade" } )
 end
 
 local function gotoHighScores()
+	audio.play( menuChoiceSound, { channel=menuChoiceSoundChannel } )
 	composer.gotoScene("Scenes.highscores", { time=800, effect="crossFade" } )
 end
 
+
+-- local menuSound
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -50,10 +59,9 @@ function scene:show( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
-
+		menuSoundChannel = audio.play( menuSound, { loops=-1 })
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
-
 	end
 end
 
@@ -66,6 +74,7 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
+		audio.stop( menuSoundChannel )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
