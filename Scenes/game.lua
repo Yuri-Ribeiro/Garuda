@@ -38,7 +38,7 @@ local fireballSoundChannel
 
 local countDeadEnemies = 0
 local boss
-local bossLife = 10
+local bossLife = 3
 
 local gameLoopTimer
 
@@ -279,9 +279,25 @@ local function createBoss()
 end
 
 
+-- explosion
+local function explosion( x, y )
+    local newExplosion = display.newSprite( mainGroup, sheet_explosion, sequences_explosion )
+    table.insert( explosionTable, newExplosion )
+
+    newExplosion:setSequence("normalExplosion")
+    newExplosion:play()
+    newExplosion.myName = "explosion"
+
+    newExplosion.x = x
+    newExplosion.y = y
+    newExplosion.yScale = 1.8
+    newExplosion.xScale = 1.8
+end
+
+
 -- check if it's time to show the boss
 local function checkShowBoss()
-    if( countDeadEnemies == 5 ) then
+    if ( countDeadEnemies == 5 ) then
         transition.to( boss, { x = display.contentCenterX + 380, time=5000,
         onComplete = function()
             boss.isBodyActive = true
@@ -291,6 +307,21 @@ local function checkShowBoss()
 end
 
 
+-- boss dead
+local function bossDead( x, y )
+    for i = 1, 14 do
+        timer.performWithDelay( 500 + i*500,
+            function() explosion( x + math.random( -30, 30 ), y  + math.random( -60, 60 )) end
+        )
+    end
+
+    timer.performWithDelay( 8000,
+        function() display.remove( boss ) end
+    )
+end
+
+
+-- Create a fireball
 local function fireball()
 
 	local newLaser = display.newSprite( mainGroup, sheet_fireball, sequences_fireball )
@@ -367,20 +398,6 @@ local function endGame()
 end
 
 
-local function explosion(x, y)
-    local newExplosion = display.newSprite( mainGroup, sheet_explosion, sequences_explosion )
-    table.insert( explosionTable, newExplosion )
-
-    newExplosion:setSequence("normalExplosion")
-    newExplosion:play()
-	newExplosion.myName = "explosion"
-
-	newExplosion.x = x
-    newExplosion.y = y
-    newExplosion.yScale = 1.8
-    newExplosion.xScale = 1.8
-	newExplosion:toBack()
-end
 
  
 local function onCollision( event )
@@ -463,15 +480,15 @@ local function onCollision( event )
 
            -- decrement boss life
            bossLife = bossLife - 1
-           print( bossLife )
 
-           --remove enemy
-        --    for i = #enemiesTable, 1, -1 do
-        --        if ( enemiesTable[i] == obj1 or enemiesTable[i] == obj2 ) then
-        --            table.remove( enemiesTable, i )
-        --            break
-        --        end
-        --    end
+           -- remove boss
+           if (bossLife == 0) then
+                if ( obj1.myName == "boss" ) then
+                    bossDead( obj1.x, obj1.y )
+                elseif ( obj2.myName == "boss" ) then
+                    bossDead( obj2.x, obj2.y )
+                end
+           end
 
            -- Increase score
            score = score + 100
