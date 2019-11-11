@@ -235,8 +235,8 @@ local function gameLoop()
         local thisEnemy = enemiesTable[i]
  
         if ( thisEnemy.x < -100 or
-             thisEnemy.x > display.contentWidth + 100 or
-             thisEnemy.y < -100 or
+        thisEnemy.x > display.contentWidth + 100 or
+        thisEnemy.y < -100 or
              thisEnemy.y > display.contentHeight + 100 )
         then
             display.remove( thisEnemy )
@@ -246,11 +246,17 @@ local function gameLoop()
 end
 
 
+local function endGame()
+    composer.setVariable( "finalScore", score )
+    composer.gotoScene( "Scenes.highscores", { time=800, effect="crossFade" } )
+end
+
+
 -- clean explosions
 local function cleanExplosions()  
     for i = #explosionTable, 1, -1 do
         local thisExplosion = explosionTable[i]
- 
+        
         if ( not thisExplosion.isPlaying )
         then
             display.remove( thisExplosion )
@@ -295,8 +301,42 @@ local function explosion( x, y )
 end
 
 
+-- explosion - all enemies
+local function explosionOfAllEnemies( x, y )
+    for i = #enemiesTable, 1, -1 do
+        local thisEnemy = enemiesTable[i]
+        
+        explosion( thisEnemy.x, thisEnemy.y )
+        display.remove( thisEnemy )
+        table.remove( enemiesTable, i )
+    end
+end
+
+
+-- boss dead
+local function bossDead( x, y )
+    timer.cancel( gameLoopTimer )
+    
+    explosionOfAllEnemies()
+
+    for i = 1, 14 do
+        timer.performWithDelay( 500 + i*500,
+            function() explosion( x + math.random( -30, 30 ), y  + math.random( -60, 60 )) end
+        )
+    end
+    
+    timer.performWithDelay( 8000,
+    function()
+        display.remove( boss )
+        timer.performWithDelay( 2000, endGame )
+    end
+)
+end
+
+
 -- check if it's time to show the boss
 local function checkShowBoss()
+
     if ( countDeadEnemies == 5 ) then
         transition.to( boss, { x = display.contentCenterX + 380, time=5000,
         onComplete = function()
@@ -304,20 +344,6 @@ local function checkShowBoss()
         end
     } )
     end
-end
-
-
--- boss dead
-local function bossDead( x, y )
-    for i = 1, 14 do
-        timer.performWithDelay( 500 + i*500,
-            function() explosion( x + math.random( -30, 30 ), y  + math.random( -60, 60 )) end
-        )
-    end
-
-    timer.performWithDelay( 8000,
-        function() display.remove( boss ) end
-    )
 end
 
 
@@ -342,6 +368,7 @@ local function fireball()
     fireballSoundChannel = audio.play( fireballSound )
     audio.setVolume( 0.3, { channel=fireballSoundChannel } )
 end
+
 
 local function dragDragon( event )
  
@@ -375,6 +402,7 @@ local function dragDragon( event )
  
     return true  -- Prevents touch propagation to underlying objects
 end
+
  
 local function restoredragon()
  
@@ -390,14 +418,6 @@ local function restoredragon()
         end
     } )
 end
-
-
-local function endGame()
-    composer.setVariable( "finalScore", score )
-    composer.gotoScene( "Scenes.highscores", { time=800, effect="crossFade" } )
-end
-
-
 
  
 local function onCollision( event )
