@@ -8,7 +8,7 @@ local scene = composer.newScene()
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
-local menuSound = audio.loadSound( "Audios/Biggie_-_Menu.mp3" )
+local menuSound = audio.loadSound( "Audios/Light_Years_Away_-_menu.mp3" )
 local menuSoundChannel
 local menuChoiceSound = audio.loadSound( "Audios/Menu_Choice.mp3" )
 local menuChoiceSoundChannel = 2
@@ -36,7 +36,7 @@ function scene:create( event )
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 
-	local background = display.newImageRect( sceneGroup, "images/background.png", 1200, 600 )
+	local background = display.newImageRect( sceneGroup, "Images/background.png", 1200, 600 )
     background.x = display.contentCenterX
 	background.y = display.contentCenterY
 	

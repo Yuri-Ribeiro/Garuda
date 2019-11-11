@@ -18,6 +18,7 @@ local score = 0
 local died = false
 
 local enemiesTable = {}
+local explosionTable = {}
 
 local dragon
 local livesText
@@ -38,29 +39,29 @@ local fireballSoundChannel
 -- Configure image sheet
 local sheetOptions =
 {
-    width = 144,
-    height = 128,
-    numFrames = 12
+    width = 60.3,
+    height = 66,
+    numFrames = 8
 }
-local sheet_flyingGaruna = graphics.newImageSheet( "images/garuda.png", sheetOptions )
+local sheet_flyingGaruna = graphics.newImageSheet( "Images/Garuda/fly2.png", sheetOptions )
 
 -- sequences table
 local sequences_flyingGaruna = {
     -- first sequence
     {
         name = "normalFlight",
-        start = 4,
-        count = 3,
-        time = 600,
+        start = 1,
+        count = 8,
+        time = 2000,
         loopCount = 0,
         loopDirection = "forward"
     },
     -- second sequence
     {
         name = "fastFlight",
-        start = 4,
-        count = 3,
-        time = 300,
+        start = 1,
+        count = 8,
+        time = 600,
         loopCount = 0,
         loopDirection = "forward"
     }
@@ -73,7 +74,7 @@ local sheetOptions_fireball =
     height = 108,
     numFrames = 4
 }
-local sheet_fireball = graphics.newImageSheet( "images/fireball_sheet.png", sheetOptions_fireball )
+local sheet_fireball = graphics.newImageSheet( "Images/fireball_sheet.png", sheetOptions_fireball )
 
 -- sequences table
 local sequences_fireball = {
@@ -97,13 +98,37 @@ local sequences_fireball = {
     }
 }
 
+------------------------------------------------------------------------------------------------------------------------------------
+-- Configure image sheet
+local sheetOptions_explosion =
+{
+    width = 42,
+    height = 42,
+    numFrames = 8
+}
+local sheet_explosion = graphics.newImageSheet( "Images/explosion_sheet.png", sheetOptions_explosion )
+
+-- sequences table
+local sequences_explosion = {
+    -- first sequence
+    {
+        name = "normalExplosion",
+        start = 1,
+        count = 8,
+        time = 500,
+        loopCount = 1,
+        loopDirection = "forward"
+    }
+}
+---------------------------------------------------------------------------------------------------------------------------------------
+
 local sheetOptions_enemy =
 {
     width = 65,
     height = 65,
     numFrames = 16
 }
-local sheet_flyingEnemy = graphics.newImageSheet( "images/enemy.png", sheetOptions_enemy )
+local sheet_flyingEnemy = graphics.newImageSheet( "Images/enemy.png", sheetOptions_enemy )
 
 -- sequences table
 local sequences_flyingEnemy = {
@@ -181,6 +206,17 @@ local function gameLoop()
             table.remove( enemiesTable, i )
         end
     end
+
+    -- Remove explosions
+    for i = #explosionTable, 1, -1 do
+        local thisExplosion = explosionTable[i]
+ 
+        if ( thisExplosion.isPlaying )
+        then
+            display.remove( thisExplosion )
+            table.remove( explosionTable, i )
+        end
+    end
 end
 
 
@@ -202,9 +238,24 @@ local function fireball()
     } )
     
     fireballSoundChannel = audio.play( fireballSound )
-    audio.setVolume( 0.4, { channel=fireballSoundChannel } )
+    audio.setVolume( 0.3, { channel=fireballSoundChannel } )
 end
 
+--------------------------------------------------------------------------------------------------------------------
+local function explosion(x, y)
+    local newExplosion = display.newSprite( mainGroup, sheet_explosion, sequences_explosion )
+    table.insert( explosionTable, newExplosion )
+
+    newExplosion:setSequence("normalExplosion")
+    newExplosion:play()
+	newExplosion.myName = "explosion"
+
+	newExplosion.x = x
+	newExplosion.y = y
+	newExplosion:toBack()
+
+end
+--------------------------------------------------------------------------------------------------------------------
 
 local function dragDragon( event )
  
@@ -276,7 +327,15 @@ local function onCollision( event )
             display.remove( obj2 )
 
             -- Sound of colision
-            audio.play( explosionSound )
+            explosionSoundChannel = audio.play( explosionSound )
+            audio.setVolume( 1.2, { channel=explosionSoundChannel } )
+
+            if ( obj1.myName == "enemy" ) then
+                explosion( obj1.x, obj1.y )
+    
+            elseif ( obj2.myName == "enemy" ) then
+                explosion( obj2.x, obj2.y )
+            end
  
             for i = #enemiesTable, 1, -1 do
                 if ( enemiesTable[i] == obj1 or enemiesTable[i] == obj2 ) then
@@ -339,7 +398,7 @@ function scene:create( event )
     display.setDefault("textureWrapX","mirroredRepeat")
 
     local background = display.newRect( backGroup, display.contentCenterX , display.contentCenterY, 1200 , 600 )
-    background.fill={ type = "image", filename = "images/background2.png" }
+    background.fill={ type = "image", filename = "Images/background2.png" }
     local function animateBackground()
         transition.to( background.fill, { time = 3000, x=1 , delta = true, onComplete = animateBackground })
     end
@@ -351,6 +410,8 @@ function scene:create( event )
     dragon:play()
     dragon.x = 100
     dragon.y = display.contentCenterY
+    dragon.yScale = 1.8
+    dragon.xScale = 1.8
     physics.addBody( dragon, { radius=30, isSensor=true } )
     dragon.myName = "dragon"
  
