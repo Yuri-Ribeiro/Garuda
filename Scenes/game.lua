@@ -245,7 +245,8 @@ local function gameLoop()
     end
 end
 
--- Remove explosions
+
+-- clean explosions
 local function cleanExplosions()  
     for i = #explosionTable, 1, -1 do
         local thisExplosion = explosionTable[i]
@@ -258,30 +259,34 @@ local function cleanExplosions()
     end
 end
 
+
 -- show boss
 local function createBoss()
-    timer.cancel( gameLoopTimer )
-    gameLoopTimer = timer.performWithDelay( 1000, gameLoop, 0 )
+    -- timer.cancel( gameLoopTimer )
+    -- gameLoopTimer = timer.performWithDelay( 1000, gameLoop, 0 )
 
     boss = display.newSprite( mainGroup, sheet_boss, sequences_boss )
     boss:setSequence("fastFlight")
     boss:play()
-    physics.addBody( boss, "dynamic", { isSensor=true } )
-    -- boss.isBullet = true
-    boss.myName = "boss"
+    physics.addBody( boss, "static", { radius=40, bounce=0.8 } )
+    boss.isBodyActive = false
 
+    boss.myName = "boss"
     boss.x = display.contentWidth + 100
     boss.y = display.contentCenterY
     boss.yScale = 1.8
     boss.xScale = 1.8
-
-    transition.to( boss, { x = display.contentCenterX + 380, time=5000 } )
 end
+
 
 -- check if it's time to show the boss
 local function checkShowBoss()
     if( countDeadEnemies == 5 ) then
-        createBoss()
+        transition.to( boss, { x = display.contentCenterX + 380, time=5000,
+        onComplete = function()
+            boss.isBodyActive = true
+        end
+    } )
     end
 end
 
@@ -439,6 +444,38 @@ local function onCollision( event )
 
                 end
             end
+        elseif ( ( obj1.myName == "laser" and obj2.myName == "boss" ) or
+                 ( obj1.myName == "boss" and obj2.myName == "laser" ) )
+        then
+           -- Sound of colision
+           explosionSoundChannel = audio.play( explosionSound )
+           audio.setVolume( 1.2, { channel=explosionSoundChannel } )
+
+           -- explosion and remove fireball
+           if ( obj1.myName == "boss" ) then
+               explosion( obj1.x - 20, obj1.y )
+               display.remove( obj2 )
+   
+           elseif ( obj2.myName == "boss" ) then
+               explosion( obj2.x - 20, obj2.y )
+               display.remove( obj1 )
+           end
+
+           -- decrement boss life
+           bossLife = bossLife - 1
+           print( bossLife )
+
+           --remove enemy
+        --    for i = #enemiesTable, 1, -1 do
+        --        if ( enemiesTable[i] == obj1 or enemiesTable[i] == obj2 ) then
+        --            table.remove( enemiesTable, i )
+        --            break
+        --        end
+        --    end
+
+           -- Increase score
+           score = score + 100
+           scoreText.text = "Pontos: " .. score
         end
     end
 end
@@ -487,6 +524,8 @@ function scene:create( event )
     dragon.xScale = 1.9
     physics.addBody( dragon, { radius=30, isSensor=true } )
     dragon.myName = "dragon"
+
+    createBoss()
  
     -- Display lives and score
     livesText = display.newText( uiGroup, "Vidas: " .. lives, 100, 160, native.systemFont, 36 )
