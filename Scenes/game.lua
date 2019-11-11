@@ -38,7 +38,7 @@ local fireballSoundChannel
 
 local countDeadEnemies = 0
 local boss
-local bossLife = 3
+local bossLife = 100
 
 local gameLoopTimer
 
@@ -208,17 +208,17 @@ local function createEnemy()
 		-- From the top
 		newEnemy.x = display.contentWidth + 60
 		newEnemy.y = -60
-		newEnemy:setLinearVelocity( math.random( -150, -100 ), math.random( 20, 60 ) )
+		newEnemy:setLinearVelocity( math.random( -200, -150 ), math.random( 20, 60 ) )
 	elseif ( whereFrom == 2 ) then
 		-- From the right
 		newEnemy.x = display.contentWidth + 60
 		newEnemy.y = math.random( display.contentHeight - 180 )
-		newEnemy:setLinearVelocity( math.random( -150, -100 ), 0 )
+		newEnemy:setLinearVelocity( math.random( -200, -150 ), 0 )
 	elseif ( whereFrom == 3 ) then
 		-- From the bottom
 		newEnemy.x = display.contentWidth + 60
 		newEnemy.y = display.contentHeight + 60
-		newEnemy:setLinearVelocity( math.random( -150,-100 ), math.random( -60, -20 ) )
+		newEnemy:setLinearVelocity( math.random( -200,-150 ), math.random( -60, -20 ) )
 	end
 
 	-- newEnemy:applyTorque( math.random( -12,-2 ) )
@@ -296,8 +296,8 @@ local function explosion( x, y )
 
     newExplosion.x = x
     newExplosion.y = y
-    newExplosion.yScale = 1.8
-    newExplosion.xScale = 1.8
+    newExplosion.yScale = 2
+    newExplosion.xScale = 2
 end
 
 
@@ -337,7 +337,7 @@ end
 -- check if it's time to show the boss
 local function checkShowBoss()
 
-    if ( countDeadEnemies == 5 ) then
+    if ( countDeadEnemies == 50 ) then
         transition.to( boss, { x = display.contentCenterX + 380, time=5000,
         onComplete = function()
             boss.isBodyActive = true
@@ -587,7 +587,7 @@ function scene:show( event )
 		-- Code here runs when the scene is entirely on screen
 		physics.start()
         Runtime:addEventListener( "collision", onCollision )
-        gameLoopTimer = timer.performWithDelay( 400, gameLoop, 0 )
+        gameLoopTimer = timer.performWithDelay( 250, gameLoop, 0 )
         cleanExplosionsTimer = timer.performWithDelay( 100, cleanExplosions, 0 )
     end
 end
