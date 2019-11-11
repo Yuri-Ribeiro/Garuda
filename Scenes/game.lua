@@ -38,6 +38,9 @@ local fireballSoundChannel
 
 local countDeadEnemies = 0
 local boss
+local bossLife = 10
+
+local gameLoopTimer
 
 -- Configure image sheet - Garuda
 local sheetOptions =
@@ -221,32 +224,13 @@ local function createEnemy()
 	-- newEnemy:applyTorque( math.random( -12,-2 ) )
 end
 
--- show boss
-local function showBoss()
-    boss = display.newSprite( mainGroup, sheet_boss, sequences_boss )
-    boss:setSequence("fastFlight")
-    boss:play()
-    physics.addBody( boss, "dynamic", { isSensor=true } )
-    -- boss.isBullet = true
-    boss.myName = "boss"
-
-    boss.x = display.contentWidth
-    boss.y = display.contentCenterY
-    boss.yScale = 1.8
-    boss.xScale = 1.8
-    
-    -- boss:toBack()
-
-    transition.to( boss, { x = display.contentCenterX + 380, time=5000 } )
-end
-
 -- Game loop
 local function gameLoop()
  
-    -- Create new asteroid
+    -- Create new enemy
     createEnemy()
  
-    -- Remove asteroids which have drifted off screen
+    -- Remove enemies which have drifted off screen
     for i = #enemiesTable, 1, -1 do
         local thisEnemy = enemiesTable[i]
  
@@ -259,21 +243,46 @@ local function gameLoop()
             table.remove( enemiesTable, i )
         end
     end
+end
 
-    -- Remove explosions
+-- Remove explosions
+local function cleanExplosions()  
     for i = #explosionTable, 1, -1 do
         local thisExplosion = explosionTable[i]
  
-        if ( thisExplosion.isPlaying )
+        if ( not thisExplosion.isPlaying )
         then
             display.remove( thisExplosion )
             table.remove( explosionTable, i )
         end
     end
+end
 
-    -- -- countDeadEnemies check
-    -- if( countDeadEnemies === 5 ) then
-        
+-- show boss
+local function createBoss()
+    timer.cancel( gameLoopTimer )
+    gameLoopTimer = timer.performWithDelay( 1000, gameLoop, 0 )
+
+    boss = display.newSprite( mainGroup, sheet_boss, sequences_boss )
+    boss:setSequence("fastFlight")
+    boss:play()
+    physics.addBody( boss, "dynamic", { isSensor=true } )
+    -- boss.isBullet = true
+    boss.myName = "boss"
+
+    boss.x = display.contentWidth + 100
+    boss.y = display.contentCenterY
+    boss.yScale = 1.8
+    boss.xScale = 1.8
+
+    transition.to( boss, { x = display.contentCenterX + 380, time=5000 } )
+end
+
+-- check if it's time to show the boss
+local function checkShowBoss()
+    if( countDeadEnemies == 5 ) then
+        createBoss()
+    end
 end
 
 
@@ -296,22 +305,6 @@ local function fireball()
     
     fireballSoundChannel = audio.play( fireballSound )
     audio.setVolume( 0.3, { channel=fireballSoundChannel } )
-end
-
-local function explosion(x, y)
-    local newExplosion = display.newSprite( mainGroup, sheet_explosion, sequences_explosion )
-    table.insert( explosionTable, newExplosion )
-
-    newExplosion:setSequence("normalExplosion")
-    newExplosion:play()
-	newExplosion.myName = "explosion"
-
-	newExplosion.x = x
-    newExplosion.y = y
-    newExplosion.yScale = 1.8
-    newExplosion.xScale = 1.8
-	newExplosion:toBack()
-
 end
 
 local function dragDragon( event )
@@ -368,6 +361,22 @@ local function endGame()
     composer.gotoScene( "Scenes.highscores", { time=800, effect="crossFade" } )
 end
 
+
+local function explosion(x, y)
+    local newExplosion = display.newSprite( mainGroup, sheet_explosion, sequences_explosion )
+    table.insert( explosionTable, newExplosion )
+
+    newExplosion:setSequence("normalExplosion")
+    newExplosion:play()
+	newExplosion.myName = "explosion"
+
+	newExplosion.x = x
+    newExplosion.y = y
+    newExplosion.yScale = 1.8
+    newExplosion.xScale = 1.8
+	newExplosion:toBack()
+end
+
  
 local function onCollision( event )
  
@@ -385,6 +394,9 @@ local function onCollision( event )
             -- Remove both the laser and asteroid
             display.remove( obj1 )
             display.remove( obj2 )
+
+            -- check if it's time to show the boss
+            checkShowBoss()
 
             -- Sound of colision
             explosionSoundChannel = audio.play( explosionSound )
@@ -424,6 +436,7 @@ local function onCollision( event )
                 else
                     dragon.alpha = 0
                     timer.performWithDelay( 1000, restoredragon )
+
                 end
             end
         end
@@ -470,12 +483,10 @@ function scene:create( event )
     dragon:play()
     dragon.x = 100
     dragon.y = display.contentCenterY
-    dragon.yScale = 1.8
-    dragon.xScale = 1.8
+    dragon.yScale = 1.9
+    dragon.xScale = 1.9
     physics.addBody( dragon, { radius=30, isSensor=true } )
     dragon.myName = "dragon"
-
-    showBoss()
  
     -- Display lives and score
     livesText = display.newText( uiGroup, "Vidas: " .. lives, 100, 160, native.systemFont, 36 )
@@ -501,7 +512,8 @@ function scene:show( event )
 		physics.start()
         Runtime:addEventListener( "collision", onCollision )
         gameLoopTimer = timer.performWithDelay( 400, gameLoop, 0 )
-	end
+        cleanExplosionsTimer = timer.performWithDelay( 100, cleanExplosions, 0 )
+    end
 end
 
 
