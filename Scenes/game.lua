@@ -36,7 +36,10 @@ local fireballSound = audio.loadSound( "Audios/105016__julien-matthey__jm-fx-fir
 local explosionSound = audio.loadSound( "Audios/Explosion.wav" )
 local fireballSoundChannel
 
--- Configure image sheet
+local countDeadEnemies = 0
+local boss
+
+-- Configure image sheet - Garuda
 local sheetOptions =
 {
     width = 60.3,
@@ -67,7 +70,7 @@ local sequences_flyingGaruna = {
     }
 }
 
--- Configure image sheet
+-- Configure image sheet - Fireball
 local sheetOptions_fireball =
 {
     width = 187,
@@ -98,8 +101,7 @@ local sequences_fireball = {
     }
 }
 
-------------------------------------------------------------------------------------------------------------------------------------
--- Configure image sheet
+-- Configure image sheet - Explosion
 local sheetOptions_explosion =
 {
     width = 42,
@@ -120,8 +122,8 @@ local sequences_explosion = {
         loopDirection = "forward"
     }
 }
----------------------------------------------------------------------------------------------------------------------------------------
 
+-- Configure image sheet - Enemy
 local sheetOptions_enemy =
 {
     width = 65,
@@ -136,6 +138,38 @@ local sequences_flyingEnemy = {
         name = "normalFlight",
         start = 13,
         count = 4,
+        time = 600,
+        loopCount = 0,
+        loopDirection = "forward"
+    }
+}
+
+
+-- Configure image sheet - Boss
+local sheetOptions_boss =
+{
+    width = 87,
+    height = 110,
+    numFrames = 8
+}
+local sheet_boss = graphics.newImageSheet( "Images/boss.png", sheetOptions_boss )
+
+-- sequences table
+local sequences_boss = {
+    -- first sequence
+    {
+        name = "normalFlight",
+        start = 1,
+        count = 8,
+        time = 2000,
+        loopCount = 0,
+        loopDirection = "forward"
+    },
+    -- second sequence
+    {
+        name = "fastFlight",
+        start = 1,
+        count = 8,
         time = 600,
         loopCount = 0,
         loopDirection = "forward"
@@ -187,7 +221,26 @@ local function createEnemy()
 	-- newEnemy:applyTorque( math.random( -12,-2 ) )
 end
 
+-- show boss
+local function showBoss()
+    boss = display.newSprite( mainGroup, sheet_boss, sequences_boss )
+    boss:setSequence("fastFlight")
+    boss:play()
+    physics.addBody( boss, "dynamic", { isSensor=true } )
+    -- boss.isBullet = true
+    boss.myName = "boss"
 
+    boss.x = display.contentWidth
+    boss.y = display.contentCenterY
+    boss.yScale = 1.8
+    boss.xScale = 1.8
+    
+    -- boss:toBack()
+
+    transition.to( boss, { x = display.contentCenterX + 380, time=5000 } )
+end
+
+-- Game loop
 local function gameLoop()
  
     -- Create new asteroid
@@ -217,6 +270,10 @@ local function gameLoop()
             table.remove( explosionTable, i )
         end
     end
+
+    -- -- countDeadEnemies check
+    -- if( countDeadEnemies === 5 ) then
+        
 end
 
 
@@ -241,7 +298,6 @@ local function fireball()
     audio.setVolume( 0.3, { channel=fireballSoundChannel } )
 end
 
---------------------------------------------------------------------------------------------------------------------
 local function explosion(x, y)
     local newExplosion = display.newSprite( mainGroup, sheet_explosion, sequences_explosion )
     table.insert( explosionTable, newExplosion )
@@ -251,11 +307,12 @@ local function explosion(x, y)
 	newExplosion.myName = "explosion"
 
 	newExplosion.x = x
-	newExplosion.y = y
+    newExplosion.y = y
+    newExplosion.yScale = 1.8
+    newExplosion.xScale = 1.8
 	newExplosion:toBack()
 
 end
---------------------------------------------------------------------------------------------------------------------
 
 local function dragDragon( event )
  
@@ -322,6 +379,9 @@ local function onCollision( event )
         if ( ( obj1.myName == "laser" and obj2.myName == "enemy" ) or
              ( obj1.myName == "enemy" and obj2.myName == "laser" ) )
         then
+            -- count
+            countDeadEnemies = countDeadEnemies + 1
+
             -- Remove both the laser and asteroid
             display.remove( obj1 )
             display.remove( obj2 )
@@ -414,6 +474,8 @@ function scene:create( event )
     dragon.xScale = 1.8
     physics.addBody( dragon, { radius=30, isSensor=true } )
     dragon.myName = "dragon"
+
+    showBoss()
  
     -- Display lives and score
     livesText = display.newText( uiGroup, "Vidas: " .. lives, 100, 160, native.systemFont, 36 )
