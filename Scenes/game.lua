@@ -25,6 +25,7 @@ local dragon
 local livesText
 local scoreText
 
+local background
 local backGroup
 local mainGroup
 local uiGroup
@@ -39,7 +40,7 @@ local fireballSoundChannel
 
 local countDeadEnemies = 0
 local boss
-local bossLife = 100
+local bossLife = 50
 
 local gameLoopTimer
 
@@ -284,7 +285,7 @@ end
 -- Boss attack loop
 local function bossAttackLoop()
     -- BossAtack
-    if ( boss.isBodyActive )
+    if ( boss.isBodyActive and bossLife > 0)
     then
         bossAttack()
     end
@@ -389,9 +390,13 @@ function bossAttack()
 
     newBossAttack.x = boss.x - 50
     newBossAttack.y = boss.y
+
+    newBossAttack.yScale = 0.8
+    newBossAttack.xScale = 0.8
+
     newBossAttack:toBack()
 
-    transition.to( newBossAttack, { x = dragon.x, y = dragon.y, time=1000,
+    transition.to( newBossAttack, { x = dragon.x, y = dragon.y, time=1400,
         onComplete = function() display.remove( newBossAttack ) end
     } )
 
@@ -614,7 +619,7 @@ function scene:create( event )
     
     display.setDefault("textureWrapX","mirroredRepeat")
 
-    local background = display.newRect( backGroup, display.contentCenterX , display.contentCenterY, 1200 , 600 )
+    background = display.newRect( backGroup, display.contentCenterX , display.contentCenterY, 1200 , 600 )
     background.fill={ type = "image", filename = "Images/background2.png" }
     local function animateBackground()
         transition.to( background.fill, { time = 3000, x=1 , delta = true, onComplete = animateBackground })
@@ -638,7 +643,8 @@ function scene:create( event )
     livesText = display.newText( uiGroup, "Vidas: " .. lives, 100, 160, "fonts/Purnima-Brush 05.ttf", 36 )
     scoreText = display.newText( uiGroup, "Pontos: " .. score, 300, 160, "fonts/Purnima-Brush 05.ttf", 36 )
 
-	dragon:addEventListener( "tap", fireball )
+	-- dragon:addEventListener( "tap", fireball )
+	background:addEventListener( "tap", fireball )
     dragon:addEventListener( "touch", dragDragon )
 end
 
@@ -657,8 +663,8 @@ function scene:show( event )
 		-- Code here runs when the scene is entirely on screen
 		physics.start()
         Runtime:addEventListener( "collision", onCollision )
-        gameLoopTimer = timer.performWithDelay( 250, gameLoop, 0 )
-        timer.performWithDelay( 1000, bossAttackLoop, 0 )
+        gameLoopTimer = timer.performWithDelay( 500, gameLoop, 0 )
+        timer.performWithDelay( 2000, bossAttackLoop, 0 )
         cleanExplosionsTimer = timer.performWithDelay( 100, cleanExplosions, 0 )
     end
 end
