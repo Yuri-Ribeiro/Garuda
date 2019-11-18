@@ -565,8 +565,8 @@ function scene:create( event )
     createBoss()
  
     -- Display lives and score
-    livesText = display.newText( uiGroup, "Vidas: " .. lives, 100, 160, native.systemFont, 36 )
-    scoreText = display.newText( uiGroup, "Pontos: " .. score, 300, 160, native.systemFont, 36 )
+    livesText = display.newText( uiGroup, "Vidas: " .. lives, 100, 160, "fonts/Purnima-Brush 05.ttf", 36 )
+    scoreText = display.newText( uiGroup, "Pontos: " .. score, 300, 160, "fonts/Purnima-Brush 05.ttf", 36 )
 
 	dragon:addEventListener( "tap", fireball )
     dragon:addEventListener( "touch", dragDragon )
