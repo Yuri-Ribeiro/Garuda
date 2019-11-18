@@ -35,3 +35,6 @@
   Garuda terá uma única vida. Haverá uma barra que indicará a quantidade de danos que essa vida ainda poderá sofrer, podendo aumentar com o tempo em caso de não estar completa
 ##	Fim do jogo
   O jogo acaba quando Garuda ou o inimigo final morre
+
+## Poster
+  https://fa7edu-my.sharepoint.com/:p:/g/personal/1727469_uni7_edu_br/EXzhdxElfxhAquieBqDprkUBSpBzjnuJ1uzUFBG3EW7DOg?e=J1OIAJ
