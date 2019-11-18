@@ -19,6 +19,7 @@ local died = false
 
 local enemiesTable = {}
 local explosionTable = {}
+local bossAttackTable = {}
 
 local dragon
 local livesText
@@ -246,6 +247,16 @@ local function gameLoop()
 end
 
 
+-- Boss attack loop
+local function bossAttackLoop()
+    -- BossAtack
+    if ( boss.isBodyActive )
+    then
+        bossAttack()
+    end
+end
+
+
 local function endGame()
     composer.setVariable( "finalScore", score )
     composer.gotoScene( "Scenes.highscores", { time=800, effect="crossFade" } )
@@ -334,13 +345,35 @@ local function bossDead( x, y )
 end
 
 
+function bossAttack()
+    local newBossAttack = display.newSprite( mainGroup, sheet_fireball, sequences_fireball )
+    newBossAttack:setSequence("fastFireball")
+    newBossAttack:play()
+    physics.addBody( newBossAttack, "dynamic", { isSensor=true } )
+    newBossAttack.isBullet = true
+    newBossAttack.myName = "bossAttack"
+
+    newBossAttack.x = boss.x - 50
+    newBossAttack.y = boss.y
+    newBossAttack:toBack()
+
+    transition.to( newBossAttack, { x = dragon.x, y = dragon.y, time=1000,
+        onComplete = function() display.remove( newBossAttack ) end
+    } )
+
+    -- fireballSoundChannel = audio.play( fireballSound )
+    -- audio.setVolume( 0.3, { channel=fireballSoundChannel } )
+end
+
+
 -- check if it's time to show the boss
 local function checkShowBoss()
-
-    if ( countDeadEnemies == 50 ) then
+    --------------------------------------------------------------------------------------- MUDAR
+    if ( countDeadEnemies == 1 ) then
         transition.to( boss, { x = display.contentCenterX + 380, time=5000,
         onComplete = function()
             boss.isBodyActive = true
+            bossAttack()
         end
     } )
     end
@@ -588,6 +621,7 @@ function scene:show( event )
 		physics.start()
         Runtime:addEventListener( "collision", onCollision )
         gameLoopTimer = timer.performWithDelay( 250, gameLoop, 0 )
+        timer.performWithDelay( 750, bossAttackLoop, 0 )
         cleanExplosionsTimer = timer.performWithDelay( 100, cleanExplosions, 0 )
     end
 end
