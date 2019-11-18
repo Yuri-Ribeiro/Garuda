@@ -105,6 +105,40 @@ local sequences_fireball = {
     }
 }
 
+
+-- Configure image sheet - bossFireball
+local sheetOptions_bossFireball =
+{
+    width = 187,
+    height = 108,
+    numFrames = 4
+}
+local sheet_bossFireball = graphics.newImageSheet( "Images/fireball_sheet_-_boss.png", sheetOptions_bossFireball )
+
+-- sequences table
+local sequences_bossFireball = {
+    -- first sequence
+    {
+        name = "normalFireball",
+        start = 1,
+        count = 4,
+        time = 500,
+        loopCount = 0,
+        loopDirection = "forward"
+    },
+    -- second sequence
+    {
+        name = "fastFireball",
+        start = 1,
+        count = 4,
+        time = 100,
+        loopCount = 0,
+        loopDirection = "forward"
+    }
+}
+
+
+
 -- Configure image sheet - Explosion
 local sheetOptions_explosion =
 {
@@ -346,7 +380,7 @@ end
 
 
 function bossAttack()
-    local newBossAttack = display.newSprite( mainGroup, sheet_fireball, sequences_fireball )
+    local newBossAttack = display.newSprite( mainGroup, sheet_bossFireball, sequences_bossFireball )
     newBossAttack:setSequence("fastFireball")
     newBossAttack:play()
     physics.addBody( newBossAttack, "dynamic", { isSensor=true } )
@@ -496,7 +530,10 @@ local function onCollision( event )
             scoreText.text = "Pontos: " .. score
  
         elseif ( ( obj1.myName == "dragon" and obj2.myName == "enemy" ) or
-                 ( obj1.myName == "enemy" and obj2.myName == "dragon" ) )
+                 ( obj1.myName == "enemy" and obj2.myName == "dragon" ) or
+                 ( obj1.myName == "bossAttack" and obj2.myName == "dragon" ) or
+                 ( obj1.myName == "dragon" and obj2.myName == "bossAttack" )
+               )
         then
             if ( died == false ) then
                 died = true
@@ -621,7 +658,7 @@ function scene:show( event )
 		physics.start()
         Runtime:addEventListener( "collision", onCollision )
         gameLoopTimer = timer.performWithDelay( 250, gameLoop, 0 )
-        timer.performWithDelay( 750, bossAttackLoop, 0 )
+        timer.performWithDelay( 1000, bossAttackLoop, 0 )
         cleanExplosionsTimer = timer.performWithDelay( 100, cleanExplosions, 0 )
     end
 end
